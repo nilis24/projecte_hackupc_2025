@@ -1,1 +1,2 @@
-"# projecte_hackupc_2025" 
+# projecte_hackupc_2025
+
