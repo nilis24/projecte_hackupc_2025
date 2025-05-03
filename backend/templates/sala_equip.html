@@ -20,8 +20,32 @@
                         <div class="input-group mb-3">
                             <input type="text" class="form-control" value="{{ url_for('unir', codi=equip.codi, _external=True) }}" readonly>
                             <button class="btn btn-outline-primary" type="button" onclick="copiarEnllac()">Copiar</button>
+                            <button class="btn btn-outline-secondary" type="button" onclick="compartirEnDispositiu()">
+                                <i class="bi bi-share"></i> Compartir
+                            </button>
+
+                            <script>
+                                function compartirEnDispositiu() {
+                                    if (navigator.share) {
+                                        navigator.share({
+                                            title: 'Omplenem per fer un viatge, no?',
+                                            text: 'Clica a l\'enllaç per unir-te al meu equip:',
+                                            url: "{{ url_for('unir', codi=equip.codi, _external=True) }}"
+                                        }).then(() => {
+                                            console.log('Compartit amb èxit!');
+                                        }).catch((error) => {
+                                            console.error('Error en compartir:', error);
+                                        });
+                                    } else {
+                                        alert('La funcionalitat de compartir no és compatible amb aquest dispositiu.');
+                                    }
+                                }
+                            </script>
                         </div>
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?data={{ url_for('unir', codi=equip.codi, _external=True) }}&size=150x150" alt="QR Code" class="img-fluid">
+                        <div class="mb-3">
+                            <h4 class="text-muted">Codi QR.</h4>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?data={{ url_for('unir', codi=equip.codi, _external=True) }}&size=150x150" alt="QR Code" class="img-fluid">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -87,7 +111,6 @@
 
         function processar() {
           socket.emit("processar_resultats", { room: room });
-          // Redirigir a la pantalla d'espera
           window.location.href = "{{ url_for('espera', codi=equip.codi) }}";
         }
     </script>
