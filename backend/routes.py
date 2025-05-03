@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, session, request
 import random, string
-from models import db, Equip, Membre
+from models import db, Equip, Membre, Prioritat, Interes, Idioma, Restriccio, Resposta
 from flask_socketio import join_room, emit, SocketIO
 from utilitats import aeroports_propers
 
@@ -44,14 +44,68 @@ def configure_routes(app, socketio):
         membre = Membre.query.get_or_404(membre_id)
         if request.method == "POST":
             respostes = request.form.to_dict()
-            membre.respostes = respostes
+
+            # Processar les prioritats
+            prioritat_ordre = respostes.get("prioritats_ordre", "")
+            if prioritat_ordre:
+                prioritat_ordre = prioritat_ordre.split(",")
+                for posicio, categoria in enumerate(prioritat_ordre, start=1):
+                    prioritat = Prioritat(categoria=categoria, posicio=posicio, resposta_id=membre.id)
+                    db.session.add(prioritat)
+
+            # Processar interessos
+            interessos = request.form.getlist("interessos[]")
+            for interes in interessos:
+                nou_interes = Interes(nom_interes=interes, resposta_id=membre.id)
+                db.session.add(nou_interes)
+
+            # Processar idiomes
+            idiomes = respostes.get("idiomes", "").split(",")
+            for idioma in idiomes:
+                nou_idioma = Idioma(nom=idioma.strip(), resposta_id=membre.id)
+                db.session.add(nou_idioma)
+
+            # Processar restriccions
+            restriccions = request.form.getlist("restriccions_alimentaries[]")
+            for restriccio in restriccions:
+                nova_restriccio = Restriccio(nom_restriccio=restriccio, resposta_id=membre.id)
+                db.session.add(nova_restriccio)
+
+            # Guardar altres respostes
+            resposta = Resposta(
+                clima_preferit=respostes.get("clima"),
+                importancia_ecologia=respostes.get("green_travel"),
+                allotjament_preferit=respostes.get("allotjament"),
+                nivell_esport=respostes.get("activitat_fisica"),
+                preferencia_transport=respostes.get("transport"),
+                ubicacio_actual=respostes.get("ubicacio"),
+                pressupost_maxim=respostes.get("pressupost"),
+                durada_viatge=respostes.get("durada"),
+                equip_id=membre.equip_id,
+                membre_id=membre.id  
+            )
+            db.session.add(resposta)
             db.session.commit()
+
+            # Notificar que el membre ha completat el formulari
+            socketio.emit('membre_completat', {'nom': membre.nom}, room=membre.equip.codi)
+
             return redirect(url_for("gracies"))
         else:
+            membre_id = membre.id
             nom = membre.nom
             codi = membre.equip.codi
             socketio.emit('nou_membre', {'nom': nom}, room=codi)
-        return render_template("formulari.html", membre=membre)
+        return render_template("formulari.html", membre=membre, membre_id=membre_id)
+
+    @app.route("/gracies")
+    def gracies():
+        membre_id = session.get("membre_id")
+        if membre_id:
+            membre = Membre.query.get(membre_id)
+            if membre:
+                return render_template("gracies.html", nom=membre.nom)
+        return redirect(url_for("index"))
 
     @app.route("/espera")
     def espera():
@@ -76,6 +130,9 @@ def configure_sockets(socketio):
     @socketio.on("join")
     def handle_join(data):
         room = data["room"]
+        equip = Equip.query.filter_by(codi=room).first()
+        if not equip:
+            return  # Si el codi no és vàlid, no fem res
         join_room(room)
         if "nom" in data and data["nom"]:
             emit("nou_membre", {"nom": data["nom"]}, to=room)
@@ -85,7 +142,10 @@ def configure_sockets(socketio):
     @socketio.on("processar_resultats")
     def processar(data):
         room = data["room"]
-        # Aquí pots fer el processament que calgui abans d'enviar
+        equip = Equip.query.filter_by(codi=room).first()
+        if not equip:
+            return  # Si el codi no és vàlid, no fem res
+        # Notificar a tots els usuaris que s'està processant
         emit("resultats_preparats", {}, to=room)
 
     @socketio.on("formulari_completat")
