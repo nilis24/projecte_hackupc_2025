@@ -2,6 +2,7 @@ from flask import render_template, redirect, url_for, session, request
 import random, string
 from models import db, Equip, Membre, Prioritat, Interes, Idioma, Restriccio, Resposta
 from flask_socketio import join_room, emit, SocketIO
+from utilitats import aeroports_propers
 
 def configure_routes(app, socketio):
     # crear equip (input nom equip)
@@ -118,6 +119,10 @@ def configure_routes(app, socketio):
     def resultats(codi):
         # Aquí carregaries les dades reals
         return render_template("resultats.html", codi=codi)
+
+    @app.route("/aeroports-propers")
+    def aeroports_mes_propers():
+        return aeroports_propers()
     
 
 

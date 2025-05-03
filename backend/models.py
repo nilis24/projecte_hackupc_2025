@@ -1,10 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from main import db
 
 # Taula Equip
 class Equip(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     codi = db.Column(db.String(10), unique=True)
     creador_nom = db.Column(db.String(100))
     membres = db.relationship('Membre', backref='equip', lazy=True)
@@ -12,7 +11,7 @@ class Equip(db.Model):
 
 # Taula Membre
 class Membre(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nom = db.Column(db.String(100))
     equip_id = db.Column(db.Integer, db.ForeignKey('equip.id'), nullable=False)
     
@@ -21,7 +20,7 @@ class Membre(db.Model):
     
 # Taula Resposta
 class Resposta(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     clima_preferit = db.Column(db.String(50))
     importancia_ecologia = db.Column(db.Integer)
     allotjament_preferit = db.Column(db.String(50))
@@ -43,7 +42,7 @@ class Resposta(db.Model):
     
 # Taula Prioritat
 class Prioritat(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     categoria = db.Column(db.String(50))
     posicio = db.Column(db.Integer)
     
@@ -52,7 +51,7 @@ class Prioritat(db.Model):
 
 # Taula Interes
 class Interes(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nom_interes = db.Column(db.String(100))
     
     # Clau forana que vincula l'interès a una resposta
@@ -60,7 +59,7 @@ class Interes(db.Model):
 
 # Taula Idioma
 class Idioma(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nom = db.Column(db.String(50))
     codi_iso = db.Column(db.String(5), unique=True)
     
@@ -69,7 +68,7 @@ class Idioma(db.Model):
 
 # Taula Restriccio
 class Restriccio(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nom_restriccio = db.Column(db.String(100))
     
     # Clau forana que vincula la restricció a una resposta
@@ -77,7 +76,7 @@ class Restriccio(db.Model):
 
 # Taula Lloc
 class Lloc(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True)
     iataCode = db.Column(db.String)
     nom = db.Column(db.String)
     latitud = db.Column(db.Float)

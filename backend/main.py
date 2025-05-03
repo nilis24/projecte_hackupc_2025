@@ -2,11 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, session
 import random, string, secrets
 from flask_socketio import SocketIO
 from routes import configure_routes, configure_sockets
-from models import db, Equip, Membre
+from models import Equip, Membre
 
 app = Flask(__name__)
 socketio = SocketIO(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+db = SQLAlchemy(app)
 
 clau_secreta = secrets.token_hex(16)
 app.config['SECRET_KEY'] = clau_secreta
