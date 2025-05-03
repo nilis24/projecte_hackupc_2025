@@ -1,5 +1,6 @@
 <h2>Comparteix aquest enllaç:</h2>
 <p>{{ url_for('unir', codi=equip.codi, _external=True) }}</p>
+<img src="https://api.qrserver.com/v1/create-qr-code/?data={{ url_for('unir', codi=equip.codi, _external=True) }}&size=150x150" alt="QR Code">
 
 <h3>Membres actuals:</h3>
 <ul id="llista-membres">
