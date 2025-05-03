@@ -1,17 +1,17 @@
 from flask import render_template, redirect, url_for, session, request
 import random, string
 from models import db, Equip, Membre
-from flask_socketio import join_room, emit
+from flask_socketio import join_room, emit, SocketIO
 
+socketio = SocketIO()
 
-
-def configure_routes(app):
+def configure_routes(app, socketio):
     # crear equip (input nom equip)
     @app.route("/crear_equip", methods=["GET", "POST"])
     def crear_equip():
         if request.method == "POST":
             nom = request.form["nom"]
-            codi = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+            codi = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
             equip = Equip(creador_nom=nom, codi=codi)
             db.session.add(equip)
             db.session.commit()
@@ -25,10 +25,11 @@ def configure_routes(app):
         return render_template("sala_equip.html", equip=equip)
 
     # unirse a un equip (input nom de membre i redireccio a formulari)
-    @app.route("/unir/<codi>", methods=["GET", "POST"])
-    def unir(codi):
-        equip = Equip.query.filter_by(codi=codi).first_or_404()
+    @app.route("/unir", methods=["GET", "POST"])
+    def unir():
         if request.method == "POST":
+            codi = request.form["codi"]
+            equip = Equip.query.filter_by(codi=codi).first_or_404()
             nom = request.form["nom"]
             membre = Membre(nom=nom, equip_id=equip.id)
             db.session.add(membre)
@@ -39,7 +40,7 @@ def configure_routes(app):
 
             session["membre_id"] = membre.id
             return redirect(url_for("formulari", membre_id=membre.id))
-        return render_template("unir.html", equip=equip)
+        return render_template("unir.html")
 
     # vista del formulari
     @app.route("/formulari/<int:membre_id>", methods=["GET", "POST"])

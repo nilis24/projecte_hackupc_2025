@@ -12,22 +12,74 @@
     <body>
         <div class="container py-5">
             <h1 class="text-center mb-4">La gran recerca</h1>
-            <h3 class="text-center mb-4">Creacio de l'equip</h3>
+            <h3 class="text-center mb-4">Què vols fer?</h3>
             <div class="row">
-                <div class="col-md-6 offset-md-3">
-                    <form action="{{ url_for('utilitats.crear_equip') }}" method="POST">
-                        <div class="mb-3">
-                            <label for="nomCreador" class="form-label">Nom creador</label>
-                            <input type="text" id="nomCreador" name="nomCreador" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="nParticipants" class="form-label">Nombre de participants</label>
-                            <input type="number" id="nParticipants" name="nParticipants" class="form-control" min="1" max="10" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Crear equip</button>
-                    </form>
+                <div class="col-md-4 offset-md-2">
+                    <button class="btn btn-primary btn-lg w-100 mb-3" onclick="loadTemplate('crear_equip')">Crear un equip</button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary btn-lg w-100 mb-3" onclick="loadTemplate('unir')">Entrar a un equip</button>
                 </div>
             </div>
+            <div id="dynamic-content" class="mt-4"></div>
+
+            <script>
+                function loadTemplate(templateName) {
+                    fetch(`/${templateName}`)
+                        .then(response => response.text())
+                        .then(html => {
+                            document.getElementById('dynamic-content').innerHTML = html;
+                            if (templateName === 'crear_equip') {
+                                document.getElementById('dynamic-content').addEventListener('submit', function(event) {
+                                    event.preventDefault();
+                                    const formData = new FormData(event.target);
+
+                                    fetch('/crear_equip', {
+                                        method: 'POST',
+                                        body: formData
+                                    })
+                                    .then(response => {
+                                        if (response.redirected) {
+                                            window.location.href = response.url;
+                                        } else {
+                                            return response.text();
+                                        }
+                                    })
+                                    .then(html => {
+                                        if (html) {
+                                            document.getElementById('dynamic-content').innerHTML = html;
+                                        }
+                                    })
+                                    .catch(error => console.error('Error enviant el formulari:', error));
+                                });
+                            } else if (templateName === 'unir') {
+                                document.getElementById('dynamic-content').addEventListener('submit', function(event) {
+                                    event.preventDefault();
+                                    const formData = new FormData(event.target);
+
+                                    fetch('/unir', {
+                                        method: 'POST',
+                                        body: formData
+                                    })
+                                    .then(response => {
+                                        if (response.redirected) {
+                                            window.location.href = response.url;
+                                        } else {
+                                            return response.text();
+                                        }
+                                    })
+                                    .then(html => {
+                                        if (html) {
+                                            document.getElementById('dynamic-content').innerHTML = html;
+                                        }
+                                    })
+                                    .catch(error => console.error('Error enviant el formulari:', error));
+                                });
+                            }
+                        })
+                        .catch(error => console.error('Error carregant el template:', error));
+                }
+            </script>
         </div>
     </body>
 </html>

@@ -39,6 +39,7 @@ class Resposta(db.Model):
 
     # Clau forana que vincula la resposta amb l'equip
     equip_id = db.Column(db.Integer, db.ForeignKey('equip.id'), nullable=False)
+    membre_id = db.Column(db.Integer, db.ForeignKey('membre.id'), nullable=False)
     
 # Taula Prioritat
 class Prioritat(db.Model):

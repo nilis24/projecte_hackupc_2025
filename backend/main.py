@@ -14,7 +14,7 @@ with app.app_context():
     db.create_all()
 
 # Registrem les rutes i els sockets en l'app
-configure_routes(app)
+configure_routes(app, socketio)
 configure_sockets(socketio)
 
 if __name__ == "__main__":
