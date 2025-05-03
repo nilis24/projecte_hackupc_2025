@@ -88,7 +88,7 @@
         function processar() {
           socket.emit("processar_resultats", { room: room });
           // Redirigir a la pantalla d'espera
-          window.location.href = "/espera";
+          window.location.href = "{{ url_for('espera', codi=equip.codi) }}";
         }
     </script>
 </body>
