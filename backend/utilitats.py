@@ -8,14 +8,8 @@ from collections import Counter
 import difflib
 import json
 from google import genai
-import requests
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
 
 db = SQLAlchemy()
-
 
 
 def calcula_mode(llista):
@@ -161,32 +155,16 @@ def crear_fitxa_de_pais(pais):
 
     return json.loads("\n".join(response.text.splitlines()[1:-1]))
 
-
-
-
-
-
-
-
-
-
-
-
 def aeroports_propers():
-    """
-    if request.headers.getlist("X-Forwarded-For"):
-        ip = request.headers.getlist("X-Forwarded-For")[0].split(',')[0]
-    else:
-        ip = request.remote_addr
-    """
+    ip = request.remote_addr
     url = "https://partners.api.skyscanner.net/apiservices/v3/geo/hierarchy/flights/nearest"
     headers = {
         "Content-Type": "application/json",
-        "x-api-key": os.getenv("SKYSCANNER_KEY")
+        "x-api-key": "sh967490139224896692439644109194"
     }
     body = {
         "locator": {
-            "ipAddress": os.getenv("IP_PUBLICA_HACKUPC")
+            "ipAddress": ip
         },
         "locale": "en-GB"
     }
