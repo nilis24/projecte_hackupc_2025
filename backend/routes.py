@@ -11,7 +11,7 @@ def configure_routes(app):
     def crear_equip():
         if request.method == "POST":
             nom = request.form["nom"]
-            codi = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+            codi = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
             equip = Equip(creador_nom=nom, codi=codi)
             db.session.add(equip)
             db.session.commit()

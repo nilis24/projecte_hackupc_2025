@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <h2>Comparteix aquest enllaç:</h2>
 <p>{{ url_for('unir', codi=equip.codi, _external=True) }}</p>
 
@@ -40,46 +39,3 @@
         socket.emit("processar_resultats", { room: room });
     }
 </script>
-=======
-<h2>Comparteix aquest enllaç:</h2>
-<p>{{ url_for('unir', codi=equip.codi, _external=True) }}</p>
-
-<h3>Membres actuals:</h3>
-<ul id="llista-membres">
-  {% for membre in equip.membres %}
-    <li>{{ membre.nom }}</li>
-  {% endfor %}
-</ul>
-
-
-<h3>Membres que han completat el formulari:</h3>
-<ul id="membres-completats"></ul>
-<button onclick="processar()">Processar resultats</button>
-
-
-
-<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
-<script>
-    const socket = io();
-    const room = "{{ equip.codi }}";
-    socket.emit("join", {room: room});
-
-    socket.on("nou_membre", function(data) {
-        const ul = document.getElementById("llista-membres");
-        const li = document.createElement("li");
-        li.innerText = data.nom;
-        ul.appendChild(li);
-    });
-
-    socket.on("membre_completat", function(data) {
-        const ul = document.getElementById("membres-completats");
-        const li = document.createElement("li");
-        li.innerText = data.nom;
-        ul.appendChild(li);
-    });
-
-    function processar() {
-        socket.emit("processar_resultats", { room: room });
-    }
-</script>
->>>>>>> 1808252 (Millores DB + Front)
