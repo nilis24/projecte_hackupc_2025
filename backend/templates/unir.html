@@ -1,5 +1,11 @@
-<h2>Unir-se a l'equip {{ equip.codi }}</h2>
-<form method="post">
-  <input name="nom" placeholder="El teu nom">
-  <button>Entrar</button>
+<form action="{{ url_for('unir') }}" method="post">
+  <div class="mb-3">
+    <label for="codi" class="form-label">Codi</label>
+    <input type="text" class="form-control" id="codi" name="codi" required>
+  </div>
+  <div class="mb-3">
+    <label for="nom" class="form-label">El teu nom</label>
+    <input type="text" class="form-control" id="nom" name="nom" required>
+  </div>
+  <button class="btn btn-primary" type="submit">Enviar</button>
 </form>

@@ -52,6 +52,29 @@
                                     })
                                     .catch(error => console.error('Error enviant el formulari:', error));
                                 });
+                            } else if (templateName === 'unir') {
+                                document.getElementById('dynamic-content').addEventListener('submit', function(event) {
+                                    event.preventDefault();
+                                    const formData = new FormData(event.target);
+
+                                    fetch('/unir', {
+                                        method: 'POST',
+                                        body: formData
+                                    })
+                                    .then(response => {
+                                        if (response.redirected) {
+                                            window.location.href = response.url;
+                                        } else {
+                                            return response.text();
+                                        }
+                                    })
+                                    .then(html => {
+                                        if (html) {
+                                            document.getElementById('dynamic-content').innerHTML = html;
+                                        }
+                                    })
+                                    .catch(error => console.error('Error enviant el formulari:', error));
+                                });
                             }
                         })
                         .catch(error => console.error('Error carregant el template:', error));
