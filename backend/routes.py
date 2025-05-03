@@ -3,8 +3,6 @@ import random, string
 from models import db, Equip, Membre
 from flask_socketio import join_room, emit, SocketIO
 
-socketio = SocketIO()
-
 def configure_routes(app, socketio):
     # crear equip (input nom equip)
     @app.route("/crear_equip", methods=["GET", "POST"])
@@ -35,9 +33,6 @@ def configure_routes(app, socketio):
             db.session.add(membre)
             db.session.commit()
 
-            # Notificació per WebSocket
-            socketio.emit('nou_membre', {'nom': nom}, room=codi)
-
             session["membre_id"] = membre.id
             return redirect(url_for("formulari", membre_id=membre.id))
         return render_template("unir.html")
@@ -51,6 +46,10 @@ def configure_routes(app, socketio):
             membre.respostes = respostes
             db.session.commit()
             return redirect(url_for("gracies"))
+        else:
+            nom = membre.nom
+            codi = membre.equip.codi
+            socketio.emit('nou_membre', {'nom': nom}, room=codi)
         return render_template("formulari.html", membre=membre)
 
     @app.route("/espera")
@@ -73,7 +72,10 @@ def configure_sockets(socketio):
     def handle_join(data):
         room = data["room"]
         join_room(room)
-        emit("nou_membre", {"nom": data["nom"]}, to=room)
+        if "nom" in data and data["nom"]:
+            emit("nou_membre", {"nom": data["nom"]}, to=room)
+        else:
+            emit("nou_membre", {"nom": "Amfitrio"}, to=room)
 
     @socketio.on("processar_resultats")
     def processar(data):

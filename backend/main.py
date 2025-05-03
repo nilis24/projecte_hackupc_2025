@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-import random, string
+import random, string, secrets
 from flask_socketio import SocketIO
 from routes import configure_routes, configure_sockets
 from models import db, Equip, Membre
@@ -8,6 +8,8 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
+clau_secreta = secrets.token_hex(16)
+app.config['SECRET_KEY'] = clau_secreta
 # Inicialitzar la base de dades
 with app.app_context():
     db.init_app(app)
