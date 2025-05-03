@@ -1,12 +1,11 @@
-from flask import render_template
+from flask import render_template, redirect, url_for, session, request
 import random, string
-from flask import render_template, redirect, url_for, session
 from models import db, Equip, Membre
 from flask_socketio import join_room, emit
 
 
 
-def configure_routes():
+def configure_routes(app):
     # crear equip (input nom equip)
     @app.route("/crear_equip", methods=["GET", "POST"])
     def crear_equip():
