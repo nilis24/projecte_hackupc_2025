@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destinacions Recomanades</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .row {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            margin: 0 -30px;
+        }
+        .col {
+            padding: 0;
+            transition: all 0.3s;
+        }
+        .col:nth-child(2) {
+            z-index: 2;
+            transform: scale(1.05);
+            margin: 0 -15px;
+        }
+        .col:nth-child(1), .col:nth-child(3) {
+            z-index: 1;
+            transform: scale(0.95);
+        }
+        .card {
+            transition: transform 0.3s;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+        }
+        .feature-icon {
+            font-size: 1.5rem;
+            color: #0d6efd;
+            margin-bottom: 0.5rem;
+        }
+        .match-percentage {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(13, 110, 253, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-3">
+        <h1 class="text-center mb-5 mt-4">Top {{ destinacions|length }} destinacions</h1>
+        
+        <div class="row row-cols-1 row-cols-md-3">
+            {% for destinacio in destinacions %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ destinacio.imatge }}" class="card-img-top" alt="{{ destinacio.nom }}" style="height: 200px; object-fit: cover;">
+                    <div class="match-percentage">{{ destinacio.coincidencia }}% Coincidència</div>
+                    <div class="card-body">
+                        <h2 class="card-title h4 text-center mb-4">{{ destinacio.nom }}</h2>
+                        <div class="text-center mb-4">
+                            {% for i in range(destinacio.estrelles_plenes) %}
+                            <i class="bi bi-star-fill text-warning"></i>
+                            {% endfor %}
+                            {% if destinacio.estrella_mitja %}
+                            <i class="bi bi-star-half text-warning"></i>
+                            {% endif %}
+                            {% for i in range(destinacio.estrelles_buides) %}
+                            <i class="bi bi-star text-warning"></i>
+                            {% endfor %}
+                        </div>
+                        <p class="card-text">{{ destinacio.descripcio }}</p>
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            {% for caracteristica in destinacio.caracteristiques %}
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-{{ caracteristica.icona }} feature-icon me-2"></i>
+                                <span>{{ caracteristica.text }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center">
+                            <button class="btn btn-primary btn-lg px-4" onclick="seleccionarDestinacio('{{ destinacio.id }}')">Seleccionar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+        function seleccionarDestinacio(id) {
+            // Aquí pots implementar la lògica per gestionar la selecció
+            console.log('Destinació seleccionada:', id);
+        }
+    </script>
+</body>
+</html>

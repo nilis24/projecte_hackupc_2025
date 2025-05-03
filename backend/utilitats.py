@@ -1,15 +1,13 @@
 from flask import request
 import random, string
 import sqlite3
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text, func
 from models import Resposta, Equip, Prioritat
 from collections import Counter
 import difflib
 import json
 from google import genai
-
-db = SQLAlchemy()
+from main import db
 
 
 def calcula_mode(llista):

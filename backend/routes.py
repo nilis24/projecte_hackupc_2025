@@ -3,9 +3,7 @@ import random, string
 from models import Equip, Membre, Prioritat, Interes, Idioma, Restriccio, Resposta
 from flask_socketio import join_room, emit, SocketIO
 from utilitats import aeroports_propers
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from extensions import db
 
 def configure_routes(app, socketio):
     # crear equip (input nom equip)
