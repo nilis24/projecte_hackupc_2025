@@ -55,15 +55,11 @@ CREATE TABLE restriccio (
     FOREIGN KEY (resposta_id) REFERENCES resposta (id)
 );
 
-CREATE TABLE pais (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE lloc (
+    id INTEGER PRIMARY KEY,
+    iataCode TEXT,
     nom TEXT,
-    codi_iso TEXT UNIQUE,
-    continent_id INTEGER NOT NULL,
-    FOREIGN KEY (continent_id) REFERENCES continent (id)
-);
-
-CREATE TABLE continent (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nom TEXT
+    latitud REAL,
+    longitud REAL,
+    vibes JSON
 );
