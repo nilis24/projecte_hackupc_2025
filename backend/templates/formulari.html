@@ -1,42 +1,3 @@
-<?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    header('Content-Type: application/json; charset=utf-8');
-
-    // Netejar i preparar dades (pots afegir més validacions si cal)
-    $dades = [
-        // Informació Bàsica
-        'ubicacio' => $_POST['ubicacio'] ?? '',
-        'nacionalitat' => $_POST['nacionalitat'] ?? '',
-        'data_inici' => $_POST['data_inici'] ?? '',
-        'data_fi' => $_POST['data_fi'] ?? '',
-        'pressupost' => $_POST['pressupost'] ?? '',
-        'durada' => $_POST['durada'] ?? '',
-
-        // Preferències Personals
-        'interessos' => $_POST['interessos'] ?? [],
-        'clima' => $_POST['clima'] ?? '',
-        'green_travel' => $_POST['green_travel'] ?? '',
-        'allotjament' => $_POST['allotjament'] ?? '',
-        'activitat_fisica' => $_POST['activitat_fisica'] ?? '',
-        'transport' => $_POST['transport'] ?? '',
-
-        // Prioritats Ordenades
-        'prioritats_ordre' => json_decode($_POST['prioritats_ordre'] ?? '[]', true),
-
-        // Informació Addicional
-        'idiomes' => $_POST['idiomes'] ?? '',
-        'experiencia' => $_POST['experiencia'] ?? '',
-        'restriccions_alimentaries' => $_POST['restriccions_alimentaries'] ?? [],
-        'restriccions' => $_POST['restriccions'] ?? '',
-        'evitar' => $_POST['evitar'] ?? '',
-        'comentaris' => $_POST['comentaris'] ?? ''
-    ];
-
-    // Mostrar el JSON
-    echo json_encode($dades, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-}
-?>
-
 <!DOCTYPE html>
 <html lang="ca">
 <head>
@@ -46,82 +7,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <style>
-        .priority-item {
-            cursor: move;
-            user-select: none;
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            background-color: #fff;
-            border: 1px solid #dee2e6;
-            border-radius: 0.25rem;
-            transition: background-color 0.2s ease;
-        }
-
-        .priority-item:hover {
-            background-color: #f8f9fa;
-        }
-
-        .priority-item.dragging {
-            opacity: 0.5;
-            background-color: #e9ecef;
-        }
-
-        .priority-item::before {
-            content: '☰';
-            margin-right: 0.5rem;
-            color: #6c757d;
-        }
-        .step-indicator {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 2rem;
-            position: relative;
-        }
-
-        .step-indicator::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #dee2e6;
-            z-index: 1;
-        }
-
-        .step {
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 50%;
-            background: #fff;
-            border: 2px solid #dee2e6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 2;
-            transition: all 0.3s ease;
-        }
-
-        .step.active {
-            border-color: #0d6efd;
-            background: #0d6efd;
-            color: #fff;
-        }
-
-        .step.completed {
-            border-color: #198754;
-            background: #198754;
-            color: #fff;
-        }
-
-        .navigation-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 2rem;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body class="bg-light">
     <div class="container py-5" x-data="{ 
@@ -417,7 +303,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/sortable-priorities.js"></script>
+    <script src="{{ url_for('static', filename='js/sortable-priorities.js') }}"></script>
     <script>
         // Validació del formulari
         (() => {
