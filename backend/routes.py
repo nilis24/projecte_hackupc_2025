@@ -37,7 +37,10 @@ def configure_routes(app, socketio):
 
             session["membre_id"] = membre.id
             return redirect(url_for("formulari", membre_id=membre.id))
-        return render_template("unir.html")
+        else: 
+            codi = request.args.get("codi")
+            equip = Equip.query.filter_by(codi=codi).first_or_404()
+            return render_template("unir.html", equip=equip, codi=codi)
 
     # vista del formulari
     @app.route("/formulari/<int:membre_id>", methods=["GET", "POST"])
