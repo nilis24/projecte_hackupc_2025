@@ -75,20 +75,12 @@ class Restriccio(db.Model):
     # Clau forana que vincula la restricció a una resposta
     resposta_id = db.Column(db.Integer, db.ForeignKey('resposta.id'), nullable=False)
 
-# Taula País
-class Pais(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nom = db.Column(db.String(50))
-    codi_iso = db.Column(db.String(2), unique=True)
-    
-    # Relació amb continent
-    continent_id = db.Column(db.Integer, db.ForeignKey('continent.id'), nullable=False)
-    
-    continent = db.relationship('Continent', backref=db.backref('paisos', lazy=True))
+# Taula Lloc
+class Lloc(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    iataCode = db.Column(db.String)
+    nom = db.Column(db.String)
+    latitud = db.Column(db.Float)
+    longitud = db.Column(db.Float)
+    vibes = db.Column(db.JSON)
 
-# Taula Continent
-class Continent(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nom = db.Column(db.String(50))
-    
-    # Relació amb els països (ja definida en la classe Pais)
