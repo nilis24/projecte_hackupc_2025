@@ -3,12 +3,13 @@ import random, string
 import sqlite3
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text, func
-from models import app, Resposta, Equip, Prioritat
+from models import Resposta, Equip, Prioritat
 from collections import Counter
 import difflib
 import json
+from google import genai
+from main import db
 
-db = SQLAlchemy(app)
 
 
 def calcula_mode(llista):
@@ -39,8 +40,140 @@ def calcular_prioritats_mitjanes(equip_id):
 
 
 def crear_fitxa_de_pais(pais):
-    pass
+    client = genai.Client(api_key="AIzaSyC6YjQ-6TjwLFuiJYdBcKCNONnFD6Tb9ec")
 
+    json_content = {
+        "pais": "Nom del país",
+        "capital": "Nom de la capital",
+        
+        "seguretat": {
+            "nivell_general": "segur/moderat/perillós",
+            "zones_a_evitar": ["", ""],
+            "alertes_actuals": ["", ""],
+            "delictes_comuns": ["", ""]
+        },
+        
+        "cultura_i_art": {
+            "patrimoni_unesco": ["", "", ""],
+            "festivals_culturals": [
+                {
+                    "nom": "",
+                    "lloc": "",
+                    "mes": "",
+                    "tema": ""
+                },
+                {
+                    "nom": "",
+                    "lloc": "",
+                    "mes": "",
+                    "tema": ""
+                }
+            ],
+            "arquitectura_emblematica": ["", "", ""],
+            "museus_recomanats": ["", "", ""]
+        },
+        
+        "musica_i_espectacles": {
+            "estils_musicals_tipics": ["", ""],
+            "artistes_famosos": ["", "", ""],
+            "sales_concerts": ["", "", ""],
+            "festivals_musicals": [
+                {
+                    "nom": "",
+                    "ciutat": "",
+                    "mes": ""
+                }
+            ]
+        },
+        
+        "gastronomia": {
+            "plats_tipics": ["", "", ""],
+            "begudes_tipiques": ["", ""],
+            "nivell_gastronomic": "alt/mitjà/baix",
+            "mercats_gastronomics": ["", ""]
+        },
+        
+        "economia_turistica": {
+            "aportacio_pct_pib": 0.0,
+            "turistes_anuals": 0,
+            "temporada_alta": ["mes_inici", "mes_final"],
+            "principals_motius_visita": ["platja", "cultura", "gastronomia"]
+        },
+        
+        "atractius_principals": {
+            "ciutats_populars": ["", "", ""],
+            "platges_famoses": ["", ""],
+            "parcs_nacionals": ["", ""],
+            "turisme_rural": True,
+            "turisme_aventura": True,
+            "turisme_luxós": True
+        },
+        
+        "transport_turistic": {
+            "facilitat_mobilitat": "alta/mitjana/baixa",
+            "targeta_turistica": True,
+            "apps_utilitats": ["transport", "guies", "idiomes"],
+            "idiomes_comunicacio": ["anglès", "idioma_local"]
+        },
+        
+        "cost_viatge": {
+            "pressupost_mitja_dia_usd": {
+                "motxiller": 30,
+                "estàndard": 80,
+                "luxós": 200
+            },
+            "nivell_preus": "baix/mitjà/alt"
+        },
+        
+        "comportaments_i_costums": {
+            "propines": "opcional/inclosa/esperada",
+            "normes_socials": ["saludar amb la mà", "puntualitat valorada"],
+            "vestimenta": "informal/conservadora segons zona",
+            "idioma_oficial": "",
+            "altres_idiomes_comuns": ["anglès", ""]
+        },
+        
+        "connectivitat": {
+            "wifi_public": "freqüent/limitat/escàs",
+            "sim_local_disponible": True,
+            "velocitat_internet_mitjana_mbps": 0.0
+        },
+        
+        "visa_i_entrada": {
+            "necessita_visa": True,
+            "tipus_visa": "a l'arribada/electrònica/previament",
+            "dies_permesos": 0,
+            "taxes_entrada_usd": 0
+        }
+    }
+
+
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=f"{json_content} \n\n Utilitza aquest esquema JSON com a plantilla per generar una fitxa tècnica detallada sobre el país {nom_pais}, amb informació turística rellevant i actualitzada. És important que matisis clarament l'estat de seguretat i estabilitat del país, indicant si és una destinació segura, si hi ha zones amb problemes, o si hi ha conflictes interns o externs que puguin afectar el turisme. Omple tots els camps amb dades completes, rigoroses i coherents amb la realitat actual. La resposta ha de consistir exclusivament en el JSON, sense cap explicació addicional.",
+    )
+
+    return json.loads("\n".join(response.text.splitlines()[1:-1]))
+
+def aeroports_propers():
+    ip = request.remote_addr
+    url = "https://partners.api.skyscanner.net/apiservices/v3/geo/hierarchy/flights/nearest"
+    headers = {
+        "Content-Type": "application/json",
+        "x-api-key": "sh967490139224896692439644109194"
+    }
+    body = {
+        "locator": {
+            "ipAddress": ip
+        },
+        "locale": "en-GB"
+    }
+    response = requests.post(url, headers=headers, json=body)
+    if response.status_code == 200:
+        data = response.json()
+        return data
+    else:
+        return {"error": "No s'ha pogut obtenir les dades de l'API"}
 
 def crear_fitxa_conjunta_viatgers(codi_equip):
     respostes = Resposta.query.filter_by(equip_id=equip.id).all()
@@ -160,7 +293,6 @@ def processar_resultats(codi_equip):
     top_three = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True)[:3])
     return top_three
         
-
 
 
 def crear_equips():
