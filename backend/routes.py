@@ -125,6 +125,9 @@ def configure_sockets(socketio):
     @socketio.on("join")
     def handle_join(data):
         room = data["room"]
+        equip = Equip.query.filter_by(codi=room).first()
+        if not equip:
+            return  # Si el codi no és vàlid, no fem res
         join_room(room)
         if "nom" in data and data["nom"]:
             emit("nou_membre", {"nom": data["nom"]}, to=room)
@@ -134,7 +137,10 @@ def configure_sockets(socketio):
     @socketio.on("processar_resultats")
     def processar(data):
         room = data["room"]
-        # Aquí pots fer el processament que calgui abans d'enviar
+        equip = Equip.query.filter_by(codi=room).first()
+        if not equip:
+            return  # Si el codi no és vàlid, no fem res
+        # Notificar a tots els usuaris que s'està processant
         emit("resultats_preparats", {}, to=room)
 
     @socketio.on("formulari_completat")
