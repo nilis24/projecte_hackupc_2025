@@ -11,6 +11,7 @@ CREATE TABLE membre (
     FOREIGN KEY (equip_id) REFERENCES equip (id)
 );
 
+DROP TABLE IF EXISTS resposta;
 CREATE TABLE resposta (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     clima_preferit TEXT,
@@ -22,6 +23,8 @@ CREATE TABLE resposta (
     pressupost_maxim REAL,
     durada_viatge INTEGER,
     equip_id INTEGER NOT NULL,
+    membre_id INTEGER NOT NULL,
+    FOREIGN KEY (membre_id) REFERENCES membre (id),
     FOREIGN KEY (equip_id) REFERENCES equip (id)
 );
 

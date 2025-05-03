@@ -10,7 +10,13 @@
 
 
 <h3>Membres que han completat el formulari:</h3>
-<ul id="membres-completats"></ul>
+<ul id="membres-completats">
+  {% for membre in equip.membres %}
+    {% if membre.completat %}
+      <li>{{ membre.nom }}</li>
+    {% endif %}
+  {% endfor %}
+</ul>
 <button onclick="processar()">Processar resultats</button>
 
 
@@ -23,6 +29,13 @@
 
     socket.on("nou_membre", function(data) {
         const ul = document.getElementById("llista-membres");
+        const li = document.createElement("li");
+        li.innerText = data.nom;
+        ul.appendChild(li);
+    });
+
+    socket.on("membre_completat", function(data) {
+        const ul = document.getElementById("membres-completats");
         const li = document.createElement("li");
         li.innerText = data.nom;
         ul.appendChild(li);
