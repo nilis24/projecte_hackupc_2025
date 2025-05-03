@@ -149,8 +149,18 @@ def calcula_coincidencia(fitxa1: dict, fitxa2: dict) -> float:
 
 
 
-def processar_resultats():
-    pass
+def processar_resultats(codi_equip):
+    resultats = {}
+    paisos = Pais.query.all()
+    fitxa_conjunta = crear_fitxa_conjunta_viatgers(codi_equip)
+    for pais in paisos:
+        fitxa_pais = crear_fitxa_de_pais(pais)
+        coincidencia = calcula_coincidencia(fitxa_conjunta, fitxa_pais)
+        resultats[pais.nom] = coincidencia
+    top_three = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True)[:3])
+    return top_three
+        
+
 
 
 def crear_equips():
