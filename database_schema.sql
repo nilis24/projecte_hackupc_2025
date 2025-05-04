@@ -69,3 +69,5 @@ CREATE TABLE lloc (
 
 -- Afegir el camp 'estat' a la taula 'Equip'
 ALTER TABLE Equip ADD COLUMN estat INTEGER DEFAULT 0;
+ALTER TABLE resposta ADD COLUMN data_inici TIME;
+ALTER TABLE resposta ADD COLUMN data_fi TIME;
