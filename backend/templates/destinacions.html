@@ -63,7 +63,6 @@
             {% for destinacio in destinacions %}
             <div class="col">
                 <div class="card h-100 shadow-sm">
-                    <img src="{{ destinacio.imatge }}" class="card-img-top" alt="{{ destinacio.nom }}" style="height: 200px; object-fit: cover;">
                     <div class="match-percentage">{{ destinacio.coincidencia }}% Coincidència</div>
                     <div class="card-body">
                         <h2 class="card-title h4 text-center mb-4">{{ destinacio.nom }}</h2>
@@ -77,7 +76,7 @@
                             {% endfor %}
                         </div>
                         <div class="text-center">
-                            <button class="btn btn-primary btn-lg px-4" onclick="seleccionarDestinacio('{{ destinacio.id }}')">Seleccionar</button>
+                            <a class="btn btn-primary btn-lg px-4" href="/vols/{{ destinacio.iata_code }}/{{ destinacio.data_viatge|date:'Y-m-d' }}">Seleccionar</a>
                         </div>
                     </div>
                 </div>
@@ -85,11 +84,5 @@
             {% endfor %}
         </div>
     </div>
-    <script>
-        function seleccionarDestinacio(id) {
-            // Aquí pots implementar la lògica per gestionar la selecció
-            console.log('Destinació seleccionada:', id);
-        }
-    </script>
 </body>
 </html>

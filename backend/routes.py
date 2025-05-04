@@ -120,14 +120,26 @@ def configure_routes(app, socketio):
     def index():
         return render_template('index.html')
     
-    @app.route("/resultats/<codi>")
+    @app.route("/destinacions/<codi>")
     def resultats(codi):
-        # Aquí carregaries les dades reals
-        return render_template("resultats.html", codi=codi)
+        destinacions = processar_resultats(codi)
+        return render_template("destinacions.html", codi=codi, destinacions=destinacions)
 
     @app.route("/aeroports-propers")
     def aeroports_mes_propers():
-        return aeroports_propers()
+        # Sanitize and validate the response before returning
+        aeroports = aeroports_propers()
+        if not isinstance(aeroports, (list, dict)):
+            return {"error": "Invalid data format"}, 400
+            
+        # Escape any HTML in the response
+        if isinstance(aeroports, list):
+            sanitized = [{k: escape(str(v)) for k,v in item.items()} for item in aeroports]
+        else:
+            sanitized = {k: escape(str(v)) for k,v in aeroports.items()}
+            
+        # Return JSON response with content-type header to prevent XSS
+        return jsonify(sanitized), 200, {'Content-Type': 'application/json'}
 
     
     @app.route("/vols/<iataCodeDestinacio>/<data>") # data en format YYYY-MM-DD

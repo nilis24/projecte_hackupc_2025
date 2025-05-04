@@ -40,6 +40,15 @@ def calcular_prioritats_mitjanes(equip_id):
     return resultats
 
 
+def dades_guerres_paisos():
+    url = "https://api.acleddata.com/acled/read/?key=suYecZD-kb-mIQYYparP&email=tawam99130@nutrv.com"
+    response = requests.get(url)
+    data = response.json()
+    
+
+
+
+
 
 def crear_fitxa_de_pais(pais):
     client = genai.Client(api_key=os.getenv("API_KEY_GENAI"))
@@ -49,8 +58,7 @@ def crear_fitxa_de_pais(pais):
         "capital": "Nom de la capital",
         
         "seguretat": {
-            "nivell_general": "segur/moderat/perillós",
-            "zones_a_evitar": ["", ""],
+            "nivell_general": "<enter: puntuatge -100-0, -100 és insegur i 0 és segur>",
             "alertes_actuals": ["", ""],
             "delictes_comuns": ["", ""]
         },
@@ -214,6 +222,10 @@ def crear_fitxa_conjunta_viatgers(codi_equip):
     durades_viatge = [r.durada_viatge for r in respostes]
     durada_viatge_mig = sum(durades_viatge) / len(durades_viatge)
 
+    # Processar data de viatge
+    dates_viatge = [r.data_viatge for r in respostes]
+    data_viatge_comu = calcula_mode(dates_viatge)[0]
+
     # Processar idiomes
     idiomes = [r.idioma for r in respostes]
     idiomes_comuns = list(set(idiomes))
@@ -236,6 +248,7 @@ def crear_fitxa_conjunta_viatgers(codi_equip):
         "nivell_esport": nivell_esport_comu,
         "importancia_ecologia": importancia_ecologia_comu,
         "allotjament_preferit": preferencia_allotjament_comu,
+        "data_viatge": data_viatge_comu,
         "durada_viatge": durada_viatge_mig,
         "idiomes": idiomes_comuns,
         "interessos": interessos_comuns,
@@ -288,6 +301,11 @@ def compara_dicts(d1, d2):
 def calcula_coincidencia(fitxa1: dict, fitxa2: dict) -> float:
     fitxa1 = normalitza_valor(fitxa1)
     fitxa2 = normalitza_valor(fitxa2)
+    
+    # Comprovar si el país està en la llista de països exclosos
+    if 'paisos_exclosos' in fitxa1 and fitxa2.get('pais') in fitxa1['paisos_exclosos']:
+        return 0.0
+    
     return compara_dicts(fitxa1, fitxa2)
 
 
@@ -295,23 +313,43 @@ def calcula_coincidencia(fitxa1: dict, fitxa2: dict) -> float:
 def enriquir_contingut_top_three(top_three):
     client = genai.Client(api_key=os.getenv("API_KEY_GENAI"))
 
-    nova_estructura_json = {
-        "nom_pais_1": {
-            "percentatge": 10.7,
+    nova_estructura_json = [
+        {
+            "nom": "nom_pais_1",
+            "coincidencia": 10.7,
             "descripcio": "<text de descripcio>",
-            "caracteristiques": ["<caracteristica1>", "<caracteristica2>", "..."]
+            "caracteristiques": [
+                {
+                    "icona": "<icona de bootstrap icons>",
+                    "text": "<text de la caracteristica>"
+                },
+                {
+                    "icona": "<icona de bootstrap icons>",
+                    "text": "<text de la caracteristica>"
+                }
+            ]
         },
-        "nom_pais_2": {
-            "percentatge": 8.2,
+        {
+            "nom": "nom_pais_1",
+            "coincidencia": 10.7,
             "descripcio": "<text de descripcio>",
-            "caracteristiques": ["<caracteristica1>", "<caracteristica2>", "..."]
-        },
+            "caracteristiques": [
+                {
+                    "icona": "<icona de bootstrap icons>",
+                    "text": "<text de la caracteristica>"
+                },
+                {
+                    "icona": "<icona de bootstrap icons>",
+                    "text": "<text de la caracteristica>"
+                }
+            ]
+        }
 
-    }
+    ]
 
     response = client.models.generate_content(
         model="gemini-2.0-flash",
-        contents=f"{top_three} \n\n Donat aquest json, tradueixlo a la seguenta estructura json: {nova_estructura_json}. Enriqueixlo proporcionant contingut per cada país. Utilitza el teu conjunt de dades per a proporcionar informació detallada sobre cada país. Asegura't que les dades proporcionades siguin precises i actualitzades. La resposta ha de consistir exclusivament en el JSON, sense cap explicació addicional.",
+        contents=f"{top_three} \n\n Donat aquest json, tradueixlo a la seguenta estructura json: {nova_estructura_json}. Enriqueixlo proporcionant contingut per cada país. Utilitza el teu conjunt de dades per a proporcionar informació detallada sobre cada país. Asegura't que les dades proporcionades siguin precises i actualitzades. La resposta ha de consistir exclusivament en el JSON, sense cap explicació addicional. IMPORTANT: no borris el camp de la data del viatge",
     )
 
     return json.loads("\n".join(response.text.splitlines()[1:-1]))
@@ -328,6 +366,7 @@ def processar_resultats(codi_equip):
         coincidencia = calcula_coincidencia(fitxa_conjunta, fitxa_pais)
         resultats[pais.nom] = coincidencia
     top_three = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True)[:3])
+    top_three["data_viatge"] = fitxa_conjunta["data_viatge"]
     return enriquir_contingut_top_three(top_three)
         
 
@@ -377,7 +416,7 @@ def busqueda_live_vols(iataCodeOrigen, iataCodeDestinacio, any, mes, dia):
     i = 0
     while i < 3 and estat != "RESULT_STATUS_COMPLETE":
         # preparacio de la request /poll
-        url = f"/apiservices/v3/flights/live/search/poll/{poll_token}"
+        url = f"https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/poll/{poll_token}"
         headers = {
             "Content-Type": "application/json",
             "x-api-key": os.getenv("API_KEY_SKYSCANNER")
