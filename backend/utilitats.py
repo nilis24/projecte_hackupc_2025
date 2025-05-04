@@ -11,6 +11,7 @@ from main import db
 from dotenv import load_dotenv
 import requests
 import os
+import pandas as pd
 
 load_dotenv()
 
@@ -41,11 +42,21 @@ def calcular_prioritats_mitjanes(equip_id):
 
 
 def dades_guerres_paisos():
-    url = f'https://api.acleddata.com/acled/read/?key={os.getenv("ACLEDATA_APIKEY")}&email={os.getenv("ACLEDATA_EMAIL")}'
+    url = f'https://api.acleddata.com/acled/read/?key={os.getenv("ACLEDATA_API_KEY")}&email={os.getenv("ACLEDATA_EMAIL")}'
     response = requests.get(url)
     data = response.json()
     response = requests.get(url)
-    data = response.json()
+    data = response.json()["data"]
+    df = pd.DataFrame(data)
+
+    # Fem el "GROUP BY"
+    
+    resultat = df.groupby(["sub_event_type", "country"]).agg(
+        total_registres=('country', 'count')
+    ).reset_index()
+    
+    return json.dumps(resultat.to_dict(orient="records")) 
+
 
     
 
@@ -161,10 +172,11 @@ def crear_fitxa_de_pais(pais):
         }
     }
 
+    context = dades_guerres_paisos()
 
     response = client.models.generate_content(
         model="gemini-2.0-flash",
-        contents=f"{json_content} \n\n Utilitza aquest esquema JSON com a plantilla per generar una fitxa tècnica detallada sobre el país {nom_pais}, amb informació turística rellevant i actualitzada. És important que matisis clarament l'estat de seguretat i estabilitat del país, indicant si és una destinació segura, si hi ha zones amb problemes, o si hi ha conflictes interns o externs que puguin afectar el turisme. Omple tots els camps amb dades completes, rigoroses i coherents amb la realitat actual. La resposta ha de consistir exclusivament en el JSON, sense cap explicació addicional.",
+        contents=f"{json_content} \n\n Utilitza aquest esquema JSON com a plantilla per generar una fitxa tècnica detallada sobre el país {nom_pais}, amb informació turística rellevant i actualitzada. És important que matisis clarament l'estat de seguretat i estabilitat del país, indicant si és una destinació segura, si hi ha zones amb problemes, o si hi ha conflictes interns o externs que puguin afectar el turisme. Omple tots els camps amb dades completes, rigoroses i coherents amb la realitat actual. La resposta ha de consistir exclusivament en el JSON, sense cap explicació addicional. Al camp de seguretat de nivell general, per assignar la puntuació, tingues en compte aquest context que et passo \n\n {context} \n\n Usa la columna de numero de registres per fer aixo, ja aquest numero es el numero de incidencies que hi ha a cada pais. Dona el contingut del JSON en Anglès",
     )
 
     return json.loads("\n".join(response.text.splitlines()[1:-1]))
@@ -310,7 +322,11 @@ def calcula_coincidencia(fitxa1: dict, fitxa2: dict) -> float:
     if 'paisos_exclosos' in fitxa1 and fitxa2.get('pais') in fitxa1['paisos_exclosos']:
         return 0.0
     
-    return compara_dicts(fitxa1, fitxa2)
+    # Ajustar el percentatge de coincidència basat en el nivell de seguretat
+    nivell_general = fitxa2.get('seguretat', {}).get('nivell_general', 0)
+    ajustament_segur = (nivell_general + 100) / 100  # Convertir a un factor entre 0 i 1
+    coincidencia = compara_dicts(fitxa1, fitxa2) * ajustament_segur
+    return coincidencia
 
 
 
