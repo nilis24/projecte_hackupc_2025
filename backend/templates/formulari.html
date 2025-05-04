@@ -11,6 +11,8 @@
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 </head>
 <body class="bg-light">
     <div class="container py-5" x-data="{ 
@@ -283,6 +285,11 @@
                             <textarea name="evitar" class="form-control" rows="2" placeholder="Països o regions que prefereixes no visitar"></textarea>
                         </div>
                         <div class="col-12">
+                            <label class="form-label">Mapa interactiu per descartar països:</label>
+                            <div id="map" style="height: 400px; border: 1px solid #ccc;"></div>
+                            <input type="hidden" name="països_a_evitar" id="països_a_evitar">
+                        </div>
+                        <div class="col-12">
                             <label class="form-label">Comentaris addicionals:</label>
                             <textarea name="comentaris" class="form-control" rows="3" placeholder="Qualsevol altra informació que consideris rellevant"></textarea>
                         </div>
@@ -331,6 +338,65 @@
             const order = Array.from(priorityList.children).map(item => item.dataset.id);
             document.getElementById('prioritats_ordre').value = order.join(',');
         });
+
+        // Inicialitzar el mapa
+        const map = L.map('map', {
+            zoomControl: false, // Desactiva el control de zoom
+            dragging: false, // Desactiva el moviment del mapa
+            scrollWheelZoom: false, // Desactiva el zoom amb la roda del ratolí
+            doubleClickZoom: false, // Desactiva el zoom amb doble clic
+            boxZoom: false, // Desactiva el zoom amb caixa
+            keyboard: false // Desactiva el control amb teclat
+        }).setView([20, 0], 2); // Centrat al món
+
+        // Afegir capa de mapes d'OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Variable per emmagatzemar els països seleccionats
+        const paisosSeleccionats = new Set();
+
+        // Carregar capa GeoJSON amb les fronteres dels països
+        fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+            .then(response => response.json())
+            .then(data => {
+                const geojsonLayer = L.geoJSON(data, {
+                    style: function(feature) {
+                        return {
+                            color: 'black',
+                            weight: 1,
+                            fillColor: 'white',
+                            fillOpacity: 0.5
+                        };
+                    },
+                    onEachFeature: function(feature, layer) {
+                        layer.on('click', function() {
+                            const pais = feature.properties.name;
+                            if (pais) {
+                                if (paisosSeleccionats.has(pais)) {
+                                    paisosSeleccionats.delete(pais);
+                                    alert(`${pais} eliminat de la llista de països a evitar.`);
+                                    layer.setStyle({ fillColor: 'white' });
+                                } else {
+                                    paisosSeleccionats.add(pais);
+                                    alert(`${pais} afegit a la llista de països a evitar.`);
+                                    layer.setStyle({ fillColor: 'red' });
+                                }
+                                actualitzarInput();
+                            } else {
+                                alert('No s\'ha pogut identificar el país seleccionat.');
+                            }
+                        });
+                    }
+                });
+                geojsonLayer.addTo(map);
+            });
+
+        // Funció per actualitzar l'input ocult
+        function actualitzarInput() {
+            document.getElementById('països_a_evitar').value = Array.from(paisosSeleccionats).join(',');
+        }
     </script>
 </body>
 </html>

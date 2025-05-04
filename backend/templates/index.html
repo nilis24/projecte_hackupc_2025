@@ -28,12 +28,7 @@
                     fetch(`/${templateName}`)
                         .then(response => response.text())
                         .then(html => {
-                            const sanitizedDiv = document.createElement('div');
-                            sanitizedDiv.textContent = html; // Safely escapes HTML
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(html, 'text/html');
-                            const safeContent = doc.body.textContent;
-                            document.getElementById('dynamic-content').textContent = safeContent;
+                            document.getElementById('dynamic-content').innerHTML = html;
                             if (templateName === 'crear_equip') {
                                 document.getElementById('dynamic-content').addEventListener('submit', function(event) {
                                     event.preventDefault();
@@ -45,25 +40,14 @@
                                     })
                                     .then(response => {
                                         if (response.redirected) {
-                                            // Validate URL is from our domain before redirecting
-                                            const allowedDomain = window.location.origin;
-                                            const redirectUrl = new URL(response.url, allowedDomain);
-                                            if (redirectUrl.origin === allowedDomain) {
-                                                window.location.replace(redirectUrl.pathname + redirectUrl.search);
-                                            } else {
-                                                console.error('Invalid redirect URL detected');
-                                            }
+                                            window.location.href = response.url;
                                         } else {
                                             return response.text();
                                         }
                                     })
                                     .then(html => {
                                         if (html) {
-                                            const parser = new DOMParser();
-                                            const doc = parser.parseFromString(html, 'text/html');
-                                            const safeContent = doc.body;
-                                            document.getElementById('dynamic-content').replaceChildren();
-                                            document.getElementById('dynamic-content').appendChild(safeContent);
+                                            document.getElementById('dynamic-content').innerHTML = html;
                                         }
                                     })
                                     .catch(error => console.error('Error enviant el formulari:', error));
@@ -79,24 +63,14 @@
                                     })
                                     .then(response => {
                                         if (response.redirected) {
-                                            const allowedDomain = window.location.origin;
-                                            const redirectUrl = new URL(response.url, allowedDomain);
-                                            if (redirectUrl.origin === allowedDomain) {
-                                                window.location.replace(redirectUrl.pathname + redirectUrl.search);
-                                            } else {
-                                                console.error('Invalid redirect URL detected');
-                                            }
+                                            window.location.href = response.url;
                                         } else {
                                             return response.text();
                                         }
                                     })
                                     .then(html => {
                                         if (html) {
-                                            const parser = new DOMParser();
-                                            const doc = parser.parseFromString(html, 'text/html');
-                                            const safeContent = doc.body;
-                                            document.getElementById('dynamic-content').replaceChildren();
-                                            document.getElementById('dynamic-content').appendChild(safeContent);
+                                            document.getElementById('dynamic-content').innerHTML = html;
                                         }
                                     })
                                     .catch(error => console.error('Error enviant el formulari:', error));
