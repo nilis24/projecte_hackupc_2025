@@ -67,17 +67,6 @@
                     <div class="match-percentage">{{ destinacio.coincidencia }}% Coincidència</div>
                     <div class="card-body">
                         <h2 class="card-title h4 text-center mb-4">{{ destinacio.nom }}</h2>
-                        <div class="text-center mb-4">
-                            {% for i in range(destinacio.estrelles_plenes) %}
-                            <i class="bi bi-star-fill text-warning"></i>
-                            {% endfor %}
-                            {% if destinacio.estrella_mitja %}
-                            <i class="bi bi-star-half text-warning"></i>
-                            {% endif %}
-                            {% for i in range(destinacio.estrelles_buides) %}
-                            <i class="bi bi-star text-warning"></i>
-                            {% endfor %}
-                        </div>
                         <p class="card-text">{{ destinacio.descripcio }}</p>
                         <div class="d-flex flex-column gap-2 mb-4">
                             {% for caracteristica in destinacio.caracteristiques %}

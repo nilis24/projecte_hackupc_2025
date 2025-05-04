@@ -42,7 +42,7 @@ def calcular_prioritats_mitjanes(equip_id):
 
 
 def crear_fitxa_de_pais(pais):
-    client = genai.Client(api_key="AIzaSyC6YjQ-6TjwLFuiJYdBcKCNONnFD6Tb9ec")
+    client = genai.Client(api_key=os.getenv("API_KEY_GENAI"))
 
     json_content = {
         "pais": "Nom del país",
@@ -292,6 +292,33 @@ def calcula_coincidencia(fitxa1: dict, fitxa2: dict) -> float:
 
 
 
+def enriquir_contingut_top_three(top_three):
+    client = genai.Client(api_key=os.getenv("API_KEY_GENAI"))
+
+    nova_estructura_json = {
+        "nom_pais_1": {
+            "percentatge": 10.7,
+            "descripcio": "<text de descripcio>",
+            "caracteristiques": ["<caracteristica1>", "<caracteristica2>", "..."]
+        },
+        "nom_pais_2": {
+            "percentatge": 8.2,
+            "descripcio": "<text de descripcio>",
+            "caracteristiques": ["<caracteristica1>", "<caracteristica2>", "..."]
+        },
+
+    }
+
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=f"{top_three} \n\n Donat aquest json, tradueixlo a la seguenta estructura json: {nova_estructura_json}. Enriqueixlo proporcionant contingut per cada país. Utilitza el teu conjunt de dades per a proporcionar informació detallada sobre cada país. Asegura't que les dades proporcionades siguin precises i actualitzades. La resposta ha de consistir exclusivament en el JSON, sense cap explicació addicional.",
+    )
+
+    return json.loads("\n".join(response.text.splitlines()[1:-1]))
+
+
+
+
 def processar_resultats(codi_equip):
     resultats = {}
     paisos = Pais.query.all()
@@ -301,7 +328,7 @@ def processar_resultats(codi_equip):
         coincidencia = calcula_coincidencia(fitxa_conjunta, fitxa_pais)
         resultats[pais.nom] = coincidencia
     top_three = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True)[:3])
-    return top_three
+    return enriquir_contingut_top_three(top_three)
         
 
 def busqueda_live_vols(iataCodeOrigen, iataCodeDestinacio, any, mes, dia):
