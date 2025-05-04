@@ -8,7 +8,11 @@ import difflib
 import json
 from google import genai
 from main import db
+from dotenv import load_dotenv
+import requests
+import os
 
+load_dotenv()
 
 def calcula_mode(llista):
     if not llista:
@@ -154,11 +158,11 @@ def crear_fitxa_de_pais(pais):
     return json.loads("\n".join(response.text.splitlines()[1:-1]))
 
 def aeroports_propers():
-    ip = request.remote_addr
+    ip = os.getenv("IP_PUBLICA_HACKUPC")
     url = "https://partners.api.skyscanner.net/apiservices/v3/geo/hierarchy/flights/nearest"
     headers = {
         "Content-Type": "application/json",
-        "x-api-key": "sh967490139224896692439644109194"
+        "x-api-key": os.getenv("API_KEY_SKYSCANNER")
     }
     body = {
         "locator": {
@@ -169,7 +173,15 @@ def aeroports_propers():
     response = requests.post(url, headers=headers, json=body)
     if response.status_code == 200:
         data = response.json()
-        return data
+        aeroports = [
+            {
+                "name": data["name"],
+                "iataCode": data["iata"]
+            }
+            for v in response["places"].values()
+            if v.get("type") == "PLACE_TYPE_AIRPORT"
+        ]
+        return aeroports
     else:
         return {"error": "No s'ha pogut obtenir les dades de l'API"}
 
@@ -291,6 +303,75 @@ def processar_resultats(codi_equip):
     top_three = dict(sorted(my_dict.items(), key=lambda item: item[1], reverse=True)[:3])
     return top_three
         
+
+def busqueda_live_vols(iataCodeOrigen, iataCodeDestinacio, any, mes, dia):
+    data = {}
+    poll_token = ""
+    estat = ""
+    # preparacio de la request /create
+    url = "https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/create"
+    headers = {
+        "Content-Type": "application/json",
+        "x-api-key": os.getenv("API_KEY_SKYSCANNER")
+    }
+    body = {
+        "query": {
+            "market": "UK",
+            "locale": "en-GB",
+            "currency": "EUR",
+            "queryLegs": [
+                {
+                    "originPlaceId": {
+                        "iata": iataCodeOrigen,
+                    },
+                    "destinationPlaceId": {
+                        "iata": iataCodeDestinacio,
+                    },
+                    "date": {
+                        "year": any,
+                        "month": mes,
+                        "day": dia
+                    }
+                }
+            ],
+        }
+    }
+
+    # execucio de la request /create
+    response = requests.post(url, headers=headers, json=body)
+    if response.status_code == 200:
+        data = response.json()
+        poll_token = data["sessionToken"]
+        estat = data["status"]
+    else:
+        return {"error": "No s'ha pogut obtenir les dades de l'API"}
+
+    
+    i = 0
+    while i < 3 and estat != "RESULT_STATUS_COMPLETE":
+        # preparacio de la request /poll
+        url = f"/apiservices/v3/flights/live/search/poll/{poll_token}"
+        headers = {
+            "Content-Type": "application/json",
+            "x-api-key": os.getenv("API_KEY_SKYSCANNER")
+        }
+        # execucio de la request /poll
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            estat = data["status"]
+            if estat != "RESULT_STATUS_COMPLETE":
+                time.sleep(5)
+            i+=1  
+        else:
+            return {"error": "No s'ha pogut obtenir les dades de l'API"}
+            break
+    else:
+        if(estat != "RESULT_STATUS_COMPLETE"):
+            return {"error": "No s'ha pogut obtenir les dades de l'API"}
+
+    return data
+
 
 
 def crear_equips():

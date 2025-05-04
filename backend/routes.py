@@ -127,6 +127,15 @@ def configure_routes(app, socketio):
     @app.route("/aeroports-propers")
     def aeroports_mes_propers():
         return aeroports_propers()
+
+    
+    @app.route("/vols/<iataCodeDestinacio>/<data>") # data en format YYYY-MM-DD
+    def vols_aeroport_destinacio(iataCodeDestinacio, data):
+        nom_destinacio = Lloc.query.filter_by(iataCode=iataCodeDestinacio).first()
+        aeroports_propers = aeroports_propers()
+        year, month, day = data.split("-")
+        vols = busqueda_live_vols(aeroports_mes_propers[0]["iataCode"], iataCodeDestinacio, year, month, day)
+        return render_template("vols.html", vols=vols, nom_destinacio=aeroports_mes_propers[0]["name"], nom_origen=nom_origen.nom)
     
 
 
