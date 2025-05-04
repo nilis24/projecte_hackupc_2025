@@ -79,8 +79,8 @@ def configure_routes(app, socketio):
 
             # Guardar altres respostes
             resposta = Resposta(
-                data_inici=respostes.get("data_inici"),
-                data_fi=respostes.get("data_fi"),
+                # data_inici=respostes.get("data_inici"),
+                # data_fi=respostes.get("data_fi"),
                 clima_preferit=respostes.get("clima"),
                 importancia_ecologia=respostes.get("green_travel"),
                 allotjament_preferit=respostes.get("allotjament"),
