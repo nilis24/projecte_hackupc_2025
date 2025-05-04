@@ -20,11 +20,15 @@
     <script>
         // Establish a connection to the server
         const socket = io();
-
+        const room = "{{ codi }}";
+        socket.emit("join", { room: room });
+        
         // Example: Listen for a custom event from the server
-        socket.on('update', (data) => {
-            console.log('Update received:', data);
+        socket.on('processar_resultats', (data) => {
+            window.location.href = '{{ url_for("espera", codi=codi)}}';
         });
+
+        // Connect to the same room as sala_equip
     </script>
 </body>
 </html>

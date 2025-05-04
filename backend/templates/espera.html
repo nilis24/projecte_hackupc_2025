@@ -21,7 +21,7 @@
 
     <script>
         const socket = io();
-        const room = "{{ codi }}";
+        const room = "{{ codi, bool_anfitrio }}";
         socket.emit("join", { room: room });
 
         socket.on("resultats_preparats", function(data) {

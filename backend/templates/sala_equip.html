@@ -111,7 +111,7 @@
 
         function processar() {
           socket.emit("processar_resultats", { room: room });
-          window.location.href = "{{ url_for('espera', codi=equip.codi) }}";
+            window.location.href = "{{ url_for('espera', codi=equip.codi) }}";
         }
     </script>
 </body>

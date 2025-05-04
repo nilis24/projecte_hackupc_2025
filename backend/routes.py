@@ -94,7 +94,7 @@ def configure_routes(app, socketio):
             # Notificar que el membre ha completat el formulari
             socketio.emit('membre_completat', {'nom': membre.nom}, room=membre.equip.codi)
 
-            return redirect(url_for("gracies"))
+            return redirect(url_for("gracies", codi=membre.equip.codi))
         else:
             membre_id = membre.id
             nom = membre.nom
