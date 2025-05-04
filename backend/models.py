@@ -7,6 +7,7 @@ class Equip(db.Model):
     creador_nom = db.Column(db.String(100))
     membres = db.relationship('Membre', backref='equip', lazy=True)
     respostes = db.relationship('Resposta', backref='equip', lazy=True)
+    estat = db.Column(db.Integer, default=0)  # 0: Esperant, 1: Processant
 
 # Taula Membre
 class Membre(db.Model):

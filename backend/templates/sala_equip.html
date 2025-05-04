@@ -78,6 +78,7 @@
     </div>
 
     <script>
+        console.log("Socket.IO definit:", typeof io !== 'undefined');
         const socket = io();
         const room = "{{ equip.codi }}";
         socket.emit("join", {room: room});
@@ -110,7 +111,23 @@
         }
 
         function processar() {
-          socket.emit("processar_resultats", { room: room });
+            console.log("Enviant esdeveniment processar_resultats per a la sala:", room);
+            socket.emit("processar_resultats", { room: room });
+            fetch(`/api/actualitzacio/{{ equip.codi }}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ actualitzat: true })
+            }).then(response => {
+                if (response.ok) {
+                    console.log("Equip marcat com actualitzat.");
+                } else {
+                    console.error("Error en marcar l'equip com actualitzat.");
+                }
+            }).catch(error => {
+                console.error("Error en la petició per actualitzar l'equip:", error);
+            });
             window.location.href = "{{ url_for('espera', codi=equip.codi) }}";
         }
     </script>

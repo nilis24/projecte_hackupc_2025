@@ -66,3 +66,6 @@ CREATE TABLE lloc (
     longitud REAL,
     vibes JSON
 );
+
+-- Afegir el camp 'estat' a la taula 'Equip'
+ALTER TABLE Equip ADD COLUMN estat INTEGER DEFAULT 0;

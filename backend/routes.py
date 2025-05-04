@@ -108,7 +108,8 @@ def configure_routes(app, socketio):
         if membre_id:
             membre = Membre.query.get(membre_id)
             if membre:
-                return render_template("gracies.html", nom=membre.nom)
+                socketio.emit("rejoin", {"room": membre.equip.codi, "nom": membre.nom}, room=membre.equip.codi)
+                return render_template("gracies.html", nom=membre.nom, codi=membre.equip.codi)
         return redirect(url_for("index"))
 
     @app.route("/espera")
@@ -137,6 +138,19 @@ def configure_routes(app, socketio):
         vols = busqueda_live_vols(aeroports_mes_propers[0]["iataCode"], iataCodeDestinacio, year, month, day)
         return render_template("vols.html", vols=vols, nom_destinacio=aeroports_mes_propers[0]["name"], nom_origen=nom_origen.nom)
     
+    @app.route('/api/actualitzacio/<codi>', methods=['GET', 'POST'])
+    def verificar_actualitzacio(codi):
+        equip = Equip.query.filter_by(codi=codi).first()
+        if request.method == 'POST':
+            if equip:
+                equip.estat = 1
+                db.session.commit()
+                return {"success": True}, 200
+            return {"error": "Equip no trobat"}, 404
+        elif request.method == 'GET':
+            if equip:
+                return {"estat": equip.estat}, 200
+            return {"error": "Equip no trobat"}, 404
 
 
 def configure_sockets(socketio):
@@ -158,8 +172,13 @@ def configure_sockets(socketio):
         equip = Equip.query.filter_by(codi=room).first()
         if not equip:
             return  # Si el codi no és vàlid, no fem res
-        # Notificar a tots els usuaris que s'està processant
+        print(f"Rebent esdeveniment processar_resultats per a la sala: {room}")
+        equip = Equip.query.filter_by(codi=room).first()
+        if equip:
+            equip.actualitzat = True
+            db.session.commit()
         emit("resultats_preparats", {}, to=room)
+        print(f"Esdeveniment resultats_preparats emès a la sala: {room}")
 
     @socketio.on("formulari_completat")
     def on_formulari_completat(data):
