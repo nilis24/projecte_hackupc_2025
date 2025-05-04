@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unir-se a un Equip</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h5 mb-0"><i class="bi bi-person-plus-fill me-2"></i>Unir-se a un Equip</h2>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('unir') }}" method="post">
+                            <div class="mb-3">
+                                <label for="codi" class="form-label">Codi</label>
+                                <input type="text" class="form-control" id="codi" name="codi" required value="{{ codi }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="nom" class="form-label">El teu nom</label>
+                                <input type="text" class="form-control" id="nom" name="nom" required>
+                            </div>
+                            <button class="btn btn-primary w-100" type="submit">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

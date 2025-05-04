@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ca">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>La gran recerca</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    </head>
+    <body>
+        <div class="container py-5">
+            <h1 class="text-center mb-4">La gran recerca</h1>
+            <h3 class="text-center mb-4">Què vols fer?</h3>
+            <div class="row">
+                <div class="col-md-4 offset-md-2">
+                    <button class="btn btn-primary btn-lg w-100 mb-3" onclick="loadTemplate('crear_equip')">Crear un equip</button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary btn-lg w-100 mb-3" onclick="loadTemplate('unir')">Entrar a un equip</button>
+                </div>
+            </div>
+            <div id="dynamic-content" class="mt-4"></div>
+
+            <script>
+                function loadTemplate(templateName) {
+                    fetch(`/${templateName}`)
+                        .then(response => response.text())
+                        .then(html => {
+                            const sanitizedDiv = document.createElement('div');
+                            sanitizedDiv.textContent = html; // Safely escapes HTML
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const safeContent = doc.body.textContent;
+                            document.getElementById('dynamic-content').textContent = safeContent;
+                            if (templateName === 'crear_equip') {
+                                document.getElementById('dynamic-content').addEventListener('submit', function(event) {
+                                    event.preventDefault();
+                                    const formData = new FormData(event.target);
+
+                                    fetch('/crear_equip', {
+                                        method: 'POST',
+                                        body: formData
+                                    })
+                                    .then(response => {
+                                        if (response.redirected) {
+                                            // Validate URL is from our domain before redirecting
+                                            const allowedDomain = window.location.origin;
+                                            const redirectUrl = new URL(response.url, allowedDomain);
+                                            if (redirectUrl.origin === allowedDomain) {
+                                                window.location.replace(redirectUrl.pathname + redirectUrl.search);
+                                            } else {
+                                                console.error('Invalid redirect URL detected');
+                                            }
+                                        } else {
+                                            return response.text();
+                                        }
+                                    })
+                                    .then(html => {
+                                        if (html) {
+                                            const parser = new DOMParser();
+                                            const doc = parser.parseFromString(html, 'text/html');
+                                            const safeContent = doc.body;
+                                            document.getElementById('dynamic-content').replaceChildren();
+                                            document.getElementById('dynamic-content').appendChild(safeContent);
+                                        }
+                                    })
+                                    .catch(error => console.error('Error enviant el formulari:', error));
+                                });
+                            } else if (templateName === 'unir') {
+                                document.getElementById('dynamic-content').addEventListener('submit', function(event) {
+                                    event.preventDefault();
+                                    const formData = new FormData(event.target);
+
+                                    fetch('/unir', {
+                                        method: 'POST',
+                                        body: formData
+                                    })
+                                    .then(response => {
+                                        if (response.redirected) {
+                                            const allowedDomain = window.location.origin;
+                                            const redirectUrl = new URL(response.url, allowedDomain);
+                                            if (redirectUrl.origin === allowedDomain) {
+                                                window.location.replace(redirectUrl.pathname + redirectUrl.search);
+                                            } else {
+                                                console.error('Invalid redirect URL detected');
+                                            }
+                                        } else {
+                                            return response.text();
+                                        }
+                                    })
+                                    .then(html => {
+                                        if (html) {
+                                            const parser = new DOMParser();
+                                            const doc = parser.parseFromString(html, 'text/html');
+                                            const safeContent = doc.body;
+                                            document.getElementById('dynamic-content').replaceChildren();
+                                            document.getElementById('dynamic-content').appendChild(safeContent);
+                                        }
+                                    })
+                                    .catch(error => console.error('Error enviant el formulari:', error));
+                                });
+                            }
+                        })
+                        .catch(error => console.error('Error carregant el template:', error));
+                }
+            </script>
+        </div>
+    </body>
+</html>

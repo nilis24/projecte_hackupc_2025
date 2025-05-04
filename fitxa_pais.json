@@ -1,0 +1,80 @@
+{
+    "pais": "Nom del país",
+    "capital": "Nom de la capital",
+    "seguretat": {
+      "nivell_general": "segur/moderat/perillós",
+      "zones_a_evitar": ["", ""],
+      "alertes_actuals": ["", ""],
+      "delictes_comuns": ["carterisme", "estafes turístiques"]
+    },
+    "cultura_i_art": {
+      "patrimoni_unesco": ["", "", ""],
+      "festivals_culturals": [
+        {"nom": "", "lloc": "", "mes": "", "tema": ""},
+        {"nom": "", "lloc": "", "mes": "", "tema": ""}
+      ],
+      "arquitectura_emblematica": ["", "", ""],
+      "museus_recomanats": ["", "", ""]
+    },
+    "musica_i_espectacles": {
+      "estils_musicals_tipics": ["", ""],
+      "artistes_famosos": ["", "", ""],
+      "sales_concerts": ["", "", ""],
+      "festivals_musicals": [
+        {"nom": "", "ciutat": "", "mes": ""}
+      ]
+    },
+    "gastronomia": {
+      "plats_tipics": ["", "", ""],
+      "begudes_tipiques": ["", ""],
+      "nivell_gastronomic": "alt/mitjà/baix",
+      "mercats_gastronomics": ["", ""]
+    },
+    "economia_turistica": {
+      "aportacio_pct_pib": 0.0,
+      "turistes_anuals": 0,
+      "temporada_alta": ["mes_inici", "mes_final"],
+      "principals_motius_visita": ["platja", "cultura", "gastronomia"]
+    },
+    "atractius_principals": {
+      "ciutats_populars": ["", "", ""],
+      "platges_famoses": ["", ""],
+      "parcs_nacionals": ["", ""],
+      "turisme_rural": true,
+      "turisme_aventura": true,
+      "turisme_luxós": true
+    },
+    "transport_turistic": {
+      "facilitat_mobilitat": "alta/mitjana/baixa",
+      "targeta_turistica": true,
+      "apps_utilitats": ["transport", "guies", "idiomes"],
+      "idiomes_comunicacio": ["anglès", "idioma_local"]
+    },
+    "cost_viatge": {
+      "pressupost_mitja_dia_usd": {
+        "motxiller": 30,
+        "estàndard": 80,
+        "luxós": 200
+      },
+      "nivell_preus": "baix/mitjà/alt"
+    },
+    "comportaments_i_costums": {
+      "propines": "opcional/inclosa/esperada",
+      "normes_socials": ["saludar amb la mà", "puntualitat valorada"],
+      "vestimenta": "informal/conservadora segons zona",
+      "idioma_oficial": "",
+      "altres_idiomes_comuns": ["anglès", ""]
+    },
+    "connectivitat": {
+      "wifi_public": "freqüent/limitat/escàs",
+      "sim_local_disponible": true,
+      "velocitat_internet_mitjana_mbps": 0.0
+    },
+    "visa_i_entrada": {
+      "necessita_visa": true,
+      "tipus_visa": "a l'arribada/electrònica/previament",
+      "dies_permesos": 0,
+      "taxes_entrada_usd": 0
+    }
+  }
+  
