@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-light">
     <div class="container py-5" x-data="{ 
@@ -28,7 +29,9 @@
             return this.currentStep > step;
         }
     }">
-        <h1 class="text-center mb-4">Preferències de Viatge</h1>
+        <h1 class="text-center mb-4">Travel Preferences</h1>
+        <p>Fill out the form to customize your trip:</p>
+        <i class="bi bi-pencil"></i>
 
         <div class="step-indicator mb-4">
             <template x-for="step in totalSteps">
@@ -44,7 +47,7 @@
         <form method="POST" class="needs-validation" novalidate action="{{ url_for('formulari', membre_id=membre.id) }}">
             <div x-show="currentStep === 1" class="card mb-4">
                 <div class="card-header bg-warning text-white">
-                    <h5 class="mb-0"><i class="bi bi-sort-numeric-down me-2"></i>Prioritats del Viatge</h5>
+                    <h5 class="mb-0"><i class="bi bi-sort-numeric-down me-2"></i>Travel Priorities</h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
@@ -76,7 +79,7 @@
 
             <div x-show="currentStep === 2" class="card mb-4">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="bi bi-heart-fill me-2"></i>Preferències Personals</h5>
+                    <h5 class="mb-0"><i class="bi bi-heart-fill me-2"></i>Personal Preferences</h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
@@ -194,34 +197,34 @@
 
             <div x-show="currentStep === 3" class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-info-circle-fill me-2"></i>Informació Bàsica</h5>
+                    <h5 class="mb-0"><i class="bi bi-info-circle-fill me-2"></i>Basic Information</h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Ubicació actual (Ciutat i país):</label>
+                            <label class="form-label">Current Location (City and Country):</label>
                             <input type="text" name="ubicacio" class="form-control" required>
-                            <div class="invalid-feedback">Si us plau, indica la teva ubicació actual.</div>
+                            <div class="invalid-feedback">Please provide your current location.</div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Nacionalitat:</label>
+                            <label class="form-label">Nationality:</label>
                             <input type="text" name="nacionalitat" class="form-control" required>
-                            <div class="invalid-feedback">Si us plau, indica la teva nacionalitat.</div>
+                            <div class="invalid-feedback">Please provide your nationality.</div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Data d'inici:</label>
+                            <label class="form-label">Start Date:</label>
                             <input type="date" name="data_inici" class="form-control">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Data de fi:</label>
+                            <label class="form-label">End Date:</label>
                             <input type="date" name="data_fi" class="form-control">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Pressupost màxim (€):</label>
+                            <label class="form-label">Maximum Budget (€):</label>
                             <input type="number" name="pressupost" class="form-control" min="0" step="100">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Durada preferida del viatge (dies):</label>
+                            <label class="form-label">Preferred Trip Duration (days):</label>
                             <input type="number" name="durada" class="form-control" min="1" max="365">
                         </div>
                     </div>
@@ -230,7 +233,7 @@
 
             <div x-show="currentStep === 4" class="card mb-4">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="bi bi-shield-fill-check me-2"></i>Informació Addicional</h5>
+                    <h5 class="mb-0"><i class="bi bi-shield-fill-check me-2"></i>Additional Information</h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
@@ -376,16 +379,121 @@
                             if (pais) {
                                 if (paisosSeleccionats.has(pais)) {
                                     paisosSeleccionats.delete(pais);
-                                    alert(`${pais} eliminat de la llista de països a evitar.`);
+                                    const toast = document.createElement('div');
+                                    toast.className = 'toast align-items-center text-bg-info border-0';
+                                    toast.role = 'alert';
+                                    toast.setAttribute('data-bs-autohide', 'true');
+                                    toast.innerHTML = `
+                                        <div class="d-flex">
+                                            <div class="toast-body">
+                                                ${pais} eliminat de la llista de països a evitar.
+                                            </div>
+                                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                                        </div>`;
+                                    toast.style.position = 'fixed';
+                                    toast.style.bottom = '20px';
+                                    toast.style.right = '20px';
+                                    toast.style.zIndex = '1050';
+                                    toast.style.transition = 'transform 0.5s ease, opacity 0.5s ease, background-color 0.5s ease';
+                                    toast.style.transform = 'translateY(100px)';
+                                    toast.style.opacity = '0';
+
+                                    document.body.appendChild(toast);
+                                    setTimeout(() => {
+                                        toast.style.transform = 'translateY(0)';
+                                        toast.style.opacity = '1';
+                                    }, 10);
+
+                                    const bootstrapToast = new bootstrap.Toast(toast);
+                                    bootstrapToast.show();
+
+                                    toast.addEventListener('hidden.bs.toast', () => {
+                                        toast.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+                                        toast.style.transform = 'translateY(100px)';
+                                        toast.style.opacity = '0';
+                                        setTimeout(() => toast.remove(), 500);
+                                    });
                                     layer.setStyle({ fillColor: 'white' });
                                 } else {
                                     paisosSeleccionats.add(pais);
-                                    alert(`${pais} afegit a la llista de països a evitar.`);
+                                    const toast = document.createElement('div');
+                                    toast.className = 'toast align-items-center text-bg-success border-0';
+                                    toast.role = 'alert';
+                                    toast.setAttribute('data-bs-autohide', 'true');
+                                    toast.innerHTML = `
+                                        <div class="d-flex">
+                                            <div class="toast-body">
+                                                ${pais} afegit a la llista de països a evitar.
+                                            </div>
+                                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                                        </div>`;
+                                    toast.style.position = 'fixed';
+                                    toast.style.bottom = '20px';
+                                    toast.style.right = '20px';
+                                    toast.style.zIndex = '1050';
+                                    toast.style.transition = 'transform 0.5s ease, opacity 0.5s ease, background-color 0.5s ease';
+                                    toast.style.transform = 'translateY(100px)';
+                                    toast.style.opacity = '0';
+
+                                    document.body.appendChild(toast);
+                                    setTimeout(() => {
+                                        toast.style.transform = 'translateY(0)';
+                                        toast.style.opacity = '1';
+                                    }, 10);
+
+                                    const bootstrapToast = new bootstrap.Toast(toast);
+                                    bootstrapToast.show();
+
+                                    toast.addEventListener('hidden.bs.toast', () => {
+                                        toast.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+                                        toast.style.transform = 'translateY(100px)';
+                                        toast.style.opacity = '0';
+                                        setTimeout(() => toast.remove(), 500);
+                                    });
                                     layer.setStyle({ fillColor: 'red' });
                                 }
                                 actualitzarInput();
                             } else {
-                                alert('No s\'ha pogut identificar el país seleccionat.');
+                                const toast = document.createElement('div');
+                                toast.className = 'toast align-items-center text-bg-danger border-0';
+                                toast.role = 'alert';
+                                toast.setAttribute('data-bs-autohide', 'true');
+                                toast.innerHTML = `
+                                    <div class="d-flex">
+                                        <div class="toast-body">
+                                            No s'ha pogut identificar el país seleccionat.
+                                        </div>
+                                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                                    </div>`;
+                                toast.style.position = 'fixed';
+                                toast.style.bottom = '20px';
+                                toast.style.right = '20px';
+                                toast.style.zIndex = '1050';
+                                toast.style.transition = 'transform 0.5s ease, opacity 0.5s ease, background-color 0.5s ease';
+                                toast.style.transform = 'translateY(100px)';
+                                toast.style.opacity = '0';
+
+                                document.body.appendChild(toast);
+                                setTimeout(() => {
+                                    toast.style.transform = 'translateY(0)';
+                                    toast.style.opacity = '1';
+                                }, 10);
+
+                                const bootstrapToast = new bootstrap.Toast(toast);
+                                bootstrapToast.show();
+
+                                toast.addEventListener('hidden.bs.toast', () => {
+                                    toast.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+                                    toast.style.transform = 'translateY(100px)';
+                                    toast.style.opacity = '0';
+                                    setTimeout(() => toast.remove(), 500);
+                                });
+                            }
+                            toast.style.backgroundColor = 'rgba(0, 128, 0, 0.8)'; // Verd amb transparència per a èxit
+                            if (toast.classList.contains('text-bg-info')) {
+                                toast.style.backgroundColor = 'rgba(0, 123, 255, 0.8)'; // Blau amb transparència per a informació
+                            } else if (toast.classList.contains('text-bg-danger')) {
+                                toast.style.backgroundColor = 'rgba(220, 53, 69, 0.8)'; // Vermell amb transparència per a error
                             }
                         });
                     }

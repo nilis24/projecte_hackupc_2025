@@ -57,13 +57,15 @@
 </head>
 <body class="bg-light">
     <div class="container py-3">
-        <h1 class="text-center mb-5 mt-4">Top {{ destinacions|length }} destinacions</h1>
+        <h1>Destinations</h1>
+        <p>Explore the best destinations for your trip:</p>
+        <h1 class="text-center mb-5 mt-4">Top {{ destinacions|length }} destinations</h1>
         
         <div class="row row-cols-1 row-cols-md-3">
             {% for destinacio in destinacions %}
             <div class="col">
                 <div class="card h-100 shadow-sm">
-                    <div class="match-percentage">{{ destinacio.coincidencia }}% Coincidència</div>
+                    <div class="match-percentage">{{ destinacio.coincidencia }}% Match</div>
                     <div class="card-body">
                         <h2 class="card-title h4 text-center mb-4">{{ destinacio.nom }}</h2>
                         <p class="card-text">{{ destinacio.descripcio }}</p>
@@ -76,7 +78,7 @@
                             {% endfor %}
                         </div>
                         <div class="text-center">
-                            <a class="btn btn-primary btn-lg px-4" href="/vols/{{ destinacio.iata_code }}/{{ destinacio.data_viatge|date:'Y-m-d' }}">Seleccionar</a>
+                            <a class="btn btn-primary btn-lg px-4" href="/vols/{{ destinacio.iata_code }}/{{ destinacio.data_viatge|date:'Y-m-d' }}">Select</a>
                         </div>
                     </div>
                 </div>

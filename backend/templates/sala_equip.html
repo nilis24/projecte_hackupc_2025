@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sala d'Equip</title>
+    <title>Team Room</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-light">
     <div class="container py-5">
@@ -14,36 +15,40 @@
             <div class="col-md-6 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white">
-                        <h2 class="h5 mb-0"><i class="bi bi-share-fill me-2"></i>Comparteix amb el teu equip</h2>
+                        <h2 class="h5 mb-0"><i class="bi bi-share-fill me-2"></i>Share with your team</h2>
                     </div>
                     <div class="card-body text-center">
                         <div class="input-group mb-3">
                             <input type="text" class="form-control" value="{{ url_for('unir', codi=equip.codi, _external=True) }}" readonly>
-                            <button class="btn btn-outline-primary" type="button" onclick="copiarEnllac()">Copiar</button>
+                            <button class="btn btn-outline-primary" type="button" onclick="copiarEnllac()">Copy</button>
                             <button class="btn btn-outline-secondary" type="button" onclick="compartirEnDispositiu()">
-                                <i class="bi bi-share"></i> Compartir
+                                <i class="bi bi-share"></i> Share
                             </button>
 
                             <script>
                                 function compartirEnDispositiu() {
                                     if (navigator.share) {
                                         navigator.share({
-                                            title: 'Omplenem per fer un viatge, no?',
-                                            text: 'Clica a l\'enllaç per unir-te al meu equip:',
+                                            title: 'Let\'s fill up for a trip, shall we?',
+                                            text: 'Click the link to join my team:',
                                             url: "{{ url_for('unir', codi=equip.codi, _external=True) }}"
                                         }).then(() => {
-                                            console.log('Compartit amb èxit!');
+                                            console.log('Shared successfully!');
                                         }).catch((error) => {
-                                            console.error('Error en compartir:', error);
+                                            console.error('Error sharing:', error);
                                         });
                                     } else {
-                                        alert('La funcionalitat de compartir no és compatible amb aquest dispositiu.');
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: 'Sharing functionality is not supported on this device.'
+                                        });
                                     }
                                 }
                             </script>
                         </div>
                         <div class="mb-3">
-                            <h4 class="text-muted">Codi QR.</h4>
+                            <h4 class="text-muted">QR Code</h4>
                             <img src="https://api.qrserver.com/v1/create-qr-code/?data={{ url_for('unir', codi=equip.codi, _external=True) }}&size=150x150" alt="QR Code" class="img-fluid">
                         </div>
                     </div>
@@ -53,10 +58,10 @@
             <div class="col-md-6 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-success text-white">
-                        <h3 class="h5 mb-0"><i class="bi bi-people-fill me-2"></i>Membres de l'equip</h3>
+                        <h3 class="h5 mb-0"><i class="bi bi-people-fill me-2"></i>Team Members</h3>
                     </div>
                     <div class="card-body">
-                        <h4 class="h6 mb-3">Membres actuals:</h4>
+                        <h4 class="h6 mb-3">Current members:</h4>
                         <ul id="llista-membres" class="list-group mb-4">
                             {% for membre in equip.membres %}
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -69,7 +74,7 @@
                         </ul>
 
                         <button onclick="processar()" class="btn btn-primary w-100">
-                            <i class="bi bi-play-fill me-2"></i>Processar resultats
+                            <i class="bi bi-play-fill me-2"></i>Process results
                         </button>
                     </div>
                 </div>
@@ -107,11 +112,15 @@
             const input = document.querySelector('input[readonly]');
             input.select();
             document.execCommand('copy');
-            alert('Enllaç copiat al porta-retalls!');
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Link copied to clipboard!'
+            });
         }
 
         function processar() {
-            console.log("Enviant esdeveniment processar_resultats per a la sala:", room);
+            console.log("Sending process_results event for room:", room);
             socket.emit("processar_resultats", { room: room });
             fetch(`/api/actualitzacio/{{ equip.codi }}`, {
                 method: 'POST',
@@ -121,12 +130,12 @@
                 body: JSON.stringify({ actualitzat: true })
             }).then(response => {
                 if (response.ok) {
-                    console.log("Equip marcat com actualitzat.");
+                    console.log("Team marked as updated.");
                 } else {
-                    console.error("Error en marcar l'equip com actualitzat.");
+                    console.error("Error marking team as updated.");
                 }
             }).catch(error => {
-                console.error("Error en la petició per actualitzar l'equip:", error);
+                console.error("Error in request to update team:", error);
             });
             window.location.href = "{{ url_for('espera', codi=equip.codi) }}";
         }
